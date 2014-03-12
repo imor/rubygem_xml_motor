@@ -24,12 +24,12 @@ class TestXMLIndexHandler < Test::Unit::TestCase
     assert_equal XMLIndexHandler.get_tag_indexes("y"), [3, 6, 7, 8]
     assert_equal XMLIndexHandler.get_tag_indexes("z"), [4, 5, 9, 10]
     assert_equal XMLIndexHandler.get_tag_indexes("not_exists"), []
-    assert_equal XMLIndexHandler.get_tag_indexes("dummy.mmy"), [2, 11]
-    assert_equal XMLIndexHandler.get_tag_indexes("dummy.mmy.y"), [3, 6, 7, 8]
-    assert_equal XMLIndexHandler.get_tag_indexes("dummy.mmy.y.z"), [4, 5]
-    assert_equal XMLIndexHandler.get_tag_indexes("dummy.not_exists"), []
-    assert_equal XMLIndexHandler.get_tag_indexes("not_exists.dummy"), []
-    assert_equal XMLIndexHandler.get_tag_indexes("dummy.not_exists.z"), []
+    assert_equal XMLIndexHandler.get_tag_indexes("dummy/mmy"), [2, 11]
+    assert_equal XMLIndexHandler.get_tag_indexes("dummy/mmy/y"), [3, 6, 7, 8]
+    assert_equal XMLIndexHandler.get_tag_indexes("dummy/mmy/y/z"), [4, 5]
+    assert_equal XMLIndexHandler.get_tag_indexes("dummy/not_exists"), []
+    assert_equal XMLIndexHandler.get_tag_indexes("not_exists/dummy"), []
+    assert_equal XMLIndexHandler.get_tag_indexes("dummy/not_exists/z"), []
   end
 
   def test_expand_node_indexes

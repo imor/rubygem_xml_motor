@@ -1,4 +1,8 @@
 module XMLChopper
+  #If tag_value is 
+  #tagName attr1=val1 attr2=val2 > SomeOtherContent 
+  #Note there can be white space or other content at the end
+  #Returns [["tagname", {"attr1"=>"val1", "attr2"=>"val2"}] " SomeOtherContent "]
   def self.get_tag_attrib_value(tag_value)
     tag_value_split = tag_value.split(/>/)
     in_tag = tag_value_split.first

@@ -6,7 +6,7 @@ require_relative '../lib/xml-motor.rb'
 class TestXMLMotor < Test::Unit::TestCase
   def setup
     @fyle = File.expand_path File.join(File.dirname(__FILE__), "dummy.xml")
-    @my_tag = 'mmy.y'
+    @my_tag = 'mmy/y'
     @my_attrib = "id='10'"
   end
   def teardown; end
@@ -56,8 +56,8 @@ class TestXMLMotor < Test::Unit::TestCase
     xnodes  = XMLMotor.splitter content
     xtags   = XMLMotor.indexify xnodes
     assert_equal XMLMotor.xmldata(xnodes, xtags, "a"), ["1<b>2</b>3<c>4</c>5"]
-    assert_equal XMLMotor.xmldata(xnodes, xtags, "a.b"), ["2"]
-    assert_equal XMLMotor.xmldata(xnodes, xtags, "a.b", nil, true), ["<b>2</b>"]
+    assert_equal XMLMotor.xmldata(xnodes, xtags, "a/b"), ["2"]
+    assert_equal XMLMotor.xmldata(xnodes, xtags, "a/b", nil, true), ["<b>2</b>"]
   end
 
   def test_xmlattrib

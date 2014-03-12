@@ -40,6 +40,8 @@ module XMLMotorEngine
       return xmltag, depth
     end
 
+	#returns a hash from _key to and array of _values_
+	#key is an integer
     def self.push_to_tag_hash(hash, key, values)
       hash ||= {}
       hash[key] ||= []

@@ -1,19 +1,27 @@
 module XMLIndexHandler
-  def self.get_tag_indexes(tag)
-   begin
-    xml_idx_to_find = XMLMotorEngine.xmltags[tag.split("/")[0]].values
-    xml_idx_to_find = xml_idx_to_find.flatten
+  def self.get_tag_indexes(tagPath)
+    begin
+	  tag, predicate = _get_tag_and_predicate_ tagPath.split("/")[0]
+	  xml_idx_to_find = XMLMotorEngine.xmltags[tag].values
+      xml_idx_to_find = xml_idx_to_find.flatten
+	  if not predicate.nil?
+		xml_idx_to_find = xml_idx_to_find[(2 * (predicate.to_i - 1))..-1]
+	  end
 
-    traverse_tag xml_idx_to_find, tag
-   rescue
-    XMLStdout._err "Finding index for tag:#{tag}.\nLook if it's actually present in the provided XML."
-    return []
-   end
+      traverse_tag xml_idx_to_find, tagPath
+    rescue
+      XMLStdout._err "Finding index for tagPath:#{tagPath}.\nLook if it's actually present in the provided XML."
+      return []
+    end
   end
 
-  def self.traverse_tag(xml_idx_to_find, tag)
-    tag.split('/')[1..-1].each do |tag_i|
-      x_curr = XMLMotorEngine.xmltags[tag_i].values.flatten
+  def self.traverse_tag(xml_idx_to_find, tagPath)
+    tagPath.split('/')[1..-1].each do |tag_i|
+	  tag, predicate = _get_tag_and_predicate_ tag_i
+      x_curr = XMLMotorEngine.xmltags[tag].values.flatten
+	  if not predicate.nil?
+		x_curr = x_curr[(2 * (predicate.to_i - 1))..-1]
+	  end
       xml_idx_to_find = expand_node_indexes xml_idx_to_find, x_curr
     end
     xml_idx_to_find
@@ -40,5 +48,14 @@ module XMLIndexHandler
 
   def self.node_index_out_of_bound?(outer_min, outer_max, curr_min, curr_max)
     outer_min > curr_min || outer_max < curr_max
+  end
+
+  def self._get_tag_and_predicate_(tag)
+    startIndex = tag.index("[")
+	endIndex = tag.index("]")
+	if startIndex.nil? or endIndex.nil?
+	  return tag, nil
+	end
+	return tag[0..startIndex-1], tag[(startIndex + 1)..(endIndex - 1)]
   end
 end

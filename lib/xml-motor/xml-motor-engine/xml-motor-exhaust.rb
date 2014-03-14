@@ -30,20 +30,45 @@ module XMLMotorEngine
     def self.tag_hash(tag_name, idx, depth, xmltag= {})
       if tag_name.match(/^\/.*/) then
         depth -= 1
-        xmltag[tag_name[1..-1]] = push_to_tag_hash xmltag[tag_name[1..-1]], depth, [idx]
+        xmltag[tag_name[1..-1]] = push_to_tag_hash xmltag[tag_name[1..-1]], depth, [idx], true
       elsif tag_name.chomp.match(/^\/$/) then
-        xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx, idx]
+        xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx, idx], true
       else
-        xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx]
+        xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx], false
         depth += 1
       end
       return xmltag, depth
     end
 
-    def self.push_to_tag_hash(hash, key, values)
+    def self.get_matching_open_array(xmltags_hash, depth, is_close_tag)
+        if is_close_tag
+            matching_array = xmltags_hash[depth]
+        else
+            matching_array = xmltags_hash[depth] ||= []
+        end
+
+        has_even_elements = (not matching_array.nil?) and matching_array.size % 2 == 0
+        if has_even_elements
+            return matching_array
+        end
+        cur_depth = depth - 1
+        while cur_depth >= 0
+            matching_array = xmltags_hash[cur_depth]
+            has_even_elements = (not matching_array.nil?) and matching_array.size % 2 == 0
+            if has_even_elements
+                return matching_array
+            end
+            cur_depth = cur_depth - 1
+        end
+        return matching_array
+    end
+
+    #returns a hash from _key to and array of _values_
+    #key is an integer
+    def self.push_to_tag_hash(hash, key, values, is_close_tag)
       hash ||= {}
-      hash[key] ||= []
-      values.each{|value| hash[key].push value}
+      matching_array = get_matching_open_array(hash, key, is_close_tag)
+      values.each{|value| matching_array.push value}
       hash
     end
   end

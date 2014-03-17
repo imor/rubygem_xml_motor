@@ -28,15 +28,38 @@ module XMLMotorEngine
     end
 
     def self.tag_hash(tag_name, idx, depth, xmltag= {})
-      if tag_name.match(/^\/.*/) then
-        depth -= 1
-        xmltag[tag_name[1..-1]] = push_to_tag_hash xmltag[tag_name[1..-1]], depth, [idx], true
-      elsif tag_name.chomp.match(/^\/$/) then
-        xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx, idx], true
-      else
-        xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx], false
-        depth += 1
-      end
+	  @open_tags ||= []
+	  if tag_name.match(/^\/.*/) then
+	    tag_name = tag_name[1..-1]
+		unwind_limit = @open_tags.rindex tag_name
+		if unwind_limit.nil?
+		  #Ignore a closing tag without any opening tag
+		elsif unwind_limit < @open_tags.size - 1
+		  #A closing tag is found but it doesn't match the last open tag
+		  while @open_tags.size >= unwind_limit + 1
+		    popped_tag = @open_tags.pop
+			depth -= 1
+		    if popped_tag == tag_name
+		      xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx], true
+		    else
+		      arr = xmltag[popped_tag][depth]
+			  arr.push arr[arr.size - 1]
+			end
+		  end
+		else
+		  #A closing tag matches the last open tag
+		  @open_tags.pop
+		  depth -= 1
+		  xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx], true
+		end
+	  elsif tag_name.chomp.match(/^\/$/) then
+		#Why isn't depth decremented here? What is being done in this elsif block exactly?
+		xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx, idx], true
+	  else
+	    @open_tags.push tag_name
+		xmltag[tag_name] = push_to_tag_hash xmltag[tag_name], depth, [idx], false
+		depth += 1
+	  end
       return xmltag, depth
     end
 
